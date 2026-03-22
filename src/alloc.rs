@@ -4,12 +4,7 @@ const MAX_DELTA: usize = 0x7FFF_0000;
 const STEP: usize = 0x10000;
 
 fn within_range(addr: usize, target: usize) -> bool {
-    let delta = if addr > target {
-        addr - target
-    } else {
-        target - addr
-    };
-    delta <= MAX_DELTA
+    addr.abs_diff(target) <= MAX_DELTA
 }
 
 fn round_up(val: usize, align: usize) -> usize {
