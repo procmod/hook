@@ -155,69 +155,83 @@ mod tests {
     use super::*;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
-    static TRAMPOLINE_A: AtomicPtr<u8> = AtomicPtr::new(std::ptr::null_mut());
-    static TRAMPOLINE_B: AtomicPtr<u8> = AtomicPtr::new(std::ptr::null_mut());
+    // each test gets its own target/detour/trampoline to avoid races
+
+    static TRAMP_1: AtomicPtr<u8> = AtomicPtr::new(std::ptr::null_mut());
+    static TRAMP_2: AtomicPtr<u8> = AtomicPtr::new(std::ptr::null_mut());
+    static TRAMP_3: AtomicPtr<u8> = AtomicPtr::new(std::ptr::null_mut());
 
     #[inline(never)]
-    extern "C" fn add_one(x: i32) -> i32 {
+    extern "C" fn target_1(x: i32) -> i32 {
         std::hint::black_box(std::hint::black_box(x) + 1)
     }
 
-    extern "C" fn add_one_detour(x: i32) -> i32 {
+    extern "C" fn detour_1(x: i32) -> i32 {
         let original: extern "C" fn(i32) -> i32 =
-            unsafe { std::mem::transmute(TRAMPOLINE_A.load(Ordering::SeqCst)) };
+            unsafe { std::mem::transmute(TRAMP_1.load(Ordering::SeqCst)) };
         original(x) + 100
     }
 
     #[inline(never)]
-    extern "C" fn double(x: i32) -> i32 {
+    extern "C" fn target_2(x: i32) -> i32 {
         std::hint::black_box(std::hint::black_box(x) * 2)
     }
 
-    extern "C" fn double_detour(x: i32) -> i32 {
+    extern "C" fn detour_2(x: i32) -> i32 {
         let original: extern "C" fn(i32) -> i32 =
-            unsafe { std::mem::transmute(TRAMPOLINE_B.load(Ordering::SeqCst)) };
+            unsafe { std::mem::transmute(TRAMP_2.load(Ordering::SeqCst)) };
         original(x) + 1000
+    }
+
+    #[inline(never)]
+    extern "C" fn target_3(x: i32) -> i32 {
+        std::hint::black_box(std::hint::black_box(x) + 10)
+    }
+
+    extern "C" fn detour_3(x: i32) -> i32 {
+        let original: extern "C" fn(i32) -> i32 =
+            unsafe { std::mem::transmute(TRAMP_3.load(Ordering::SeqCst)) };
+        original(x) + 500
     }
 
     #[test]
     fn hook_and_unhook() {
-        assert_eq!(add_one(5), 6);
+        assert_eq!(target_1(5), 6);
 
         let mut hook =
-            unsafe { Hook::install(add_one as *const u8, add_one_detour as *const u8) }.unwrap();
+            unsafe { Hook::install(target_1 as *const u8, detour_1 as *const u8) }.unwrap();
 
-        TRAMPOLINE_A.store(hook.trampoline() as *mut u8, Ordering::SeqCst);
+        TRAMP_1.store(hook.trampoline() as *mut u8, Ordering::SeqCst);
 
-        assert_eq!(add_one(5), 106);
+        assert_eq!(target_1(5), 106);
 
         unsafe { hook.unhook().unwrap() };
 
-        assert_eq!(add_one(5), 6);
+        assert_eq!(target_1(5), 6);
     }
 
     #[test]
     fn hook_auto_unhook_on_drop() {
-        assert_eq!(double(7), 14);
+        assert_eq!(target_2(7), 14);
 
         {
             let hook =
-                unsafe { Hook::install(double as *const u8, double_detour as *const u8) }.unwrap();
+                unsafe { Hook::install(target_2 as *const u8, detour_2 as *const u8) }.unwrap();
 
-            TRAMPOLINE_B.store(hook.trampoline() as *mut u8, Ordering::SeqCst);
+            TRAMP_2.store(hook.trampoline() as *mut u8, Ordering::SeqCst);
 
-            assert_eq!(double(7), 1014);
+            assert_eq!(target_2(7), 1014);
         }
 
-        assert_eq!(double(7), 14);
+        assert_eq!(target_2(7), 14);
     }
 
     #[test]
     fn unhook_twice_fails() {
         let mut hook =
-            unsafe { Hook::install(add_one as *const u8, add_one_detour as *const u8) }.unwrap();
+            unsafe { Hook::install(target_3 as *const u8, detour_3 as *const u8) }.unwrap();
 
-        TRAMPOLINE_A.store(hook.trampoline() as *mut u8, Ordering::SeqCst);
+        TRAMP_3.store(hook.trampoline() as *mut u8, Ordering::SeqCst);
 
         unsafe { hook.unhook().unwrap() };
 
