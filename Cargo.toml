@@ -1,0 +1,19 @@
+[package]
+name = "procmod-hook"
+version = "1.0.0"
+edition = "2021"
+description = "Inline function hooking and detouring for x86_64"
+license = "MIT"
+repository = "https://github.com/procmod/hook"
+keywords = ["hooking", "detour", "game", "modding", "x86_64"]
+categories = ["game-development", "os"]
+
+[dependencies]
+iced-x86 = { version = "1", default-features = false, features = ["std", "decoder", "block_encoder", "instr_info"] }
+thiserror = "2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_System_Memory", "Win32_Foundation"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
