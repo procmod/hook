@@ -1,9 +1,11 @@
 use crate::error::{Error, Result};
 
+#[cfg(unix)]
 fn round_up(val: usize, align: usize) -> usize {
     (val + align - 1) & !(align - 1)
 }
 
+#[cfg(unix)]
 fn page_range(addr: usize, len: usize, page_size: usize) -> (usize, usize) {
     let start = addr & !(page_size - 1);
     let size = round_up(addr + len, page_size) - start;
