@@ -1,14 +1,6 @@
 <div align="center">
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="128" height="128">
-  <rect width="256" height="256" rx="16" fill="#111"/>
-  <line x1="36" y1="96" x2="96" y2="96" stroke="#f97316" stroke-width="8" stroke-linecap="round"/>
-  <path d="M 96 96 L 96 148 Q 96 184 128 184 Q 160 184 160 148 L 160 96" stroke="#38bdf8" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <line x1="160" y1="96" x2="220" y2="96" stroke="#f97316" stroke-width="8" stroke-linecap="round"/>
-  <path d="M 210 86 L 224 96 L 210 106" stroke="#f97316" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="96" cy="96" r="6" fill="#a78bfa"/>
-  <circle cx="160" cy="96" r="6" fill="#a78bfa"/>
-</svg>
+<img src="logo.svg" width="128" height="128" alt="procmod-hook">
 
 # procmod-hook
 
