@@ -21,9 +21,6 @@ pub struct Hook {
     installed: bool,
 }
 
-unsafe impl Send for Hook {}
-unsafe impl Sync for Hook {}
-
 impl Hook {
     /// Install an inline hook at `target`, redirecting calls to `detour`.
     ///

@@ -1,6 +1,6 @@
 [package]
 name = "procmod-hook"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 description = "Inline function hooking and detouring for x86_64"
 license = "MIT"
