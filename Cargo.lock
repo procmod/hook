@@ -34,7 +34,7 @@ dependencies = [
 
 [[package]]
 name = "procmod-hook"
-version = "1.0.1"
+version = "2.0.0"
 dependencies = [
  "iced-x86",
  "libc",
