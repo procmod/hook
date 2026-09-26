@@ -13,4 +13,15 @@ jobs:
           components: clippy, rustfmt
       - run: cargo fmt -- --check
       - run: cargo clippy -- -D warnings
-      - run: cargo test -- --test-threads=1
+      - run: cargo test
+
+  macos-rosetta:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin
+          components: clippy
+      - run: cargo clippy --target x86_64-apple-darwin -- -D warnings
+      - run: cargo test --target x86_64-apple-darwin

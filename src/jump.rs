@@ -12,6 +12,14 @@ pub fn encode_rel32(from: u64, to: u64) -> Option<[u8; REL32_LEN]> {
     Some(buf)
 }
 
+/// The shortest jump from `from` to `to`.
+pub fn encode(from: u64, to: u64) -> Vec<u8> {
+    match encode_rel32(from, to) {
+        Some(jump) => jump.to_vec(),
+        None => encode_abs64(to).to_vec(),
+    }
+}
+
 pub fn encode_abs64(to: u64) -> [u8; ABS64_LEN] {
     let mut buf = [0u8; ABS64_LEN];
     buf[0] = 0xFF;
@@ -46,6 +54,12 @@ mod tests {
     #[test]
     fn rel32_out_of_range() {
         assert!(encode_rel32(0, 0x1_0000_0000).is_none());
+    }
+
+    #[test]
+    fn encode_prefers_rel32() {
+        assert_eq!(encode(0x1000, 0x2000).len(), REL32_LEN);
+        assert_eq!(encode(0, 0x1_0000_0000).len(), ABS64_LEN);
     }
 
     #[test]
